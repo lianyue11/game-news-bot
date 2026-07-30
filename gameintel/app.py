@@ -34,6 +34,7 @@ class Item:
     summary: str
     category: str = "其他"
     zh_summary: str = ""
+    importance: int = 0
 
 
 def load_config() -> dict:
@@ -89,6 +90,15 @@ def classify(item: Item, cfg: dict) -> str:
               for cat, words in cfg["categories"].items()}
     best = max(scores, key=scores.get)
     return best if scores[best] else "其他"
+
+
+def importance_score(item: Item, cfg: dict) -> int:
+    text = f"{item.title} {item.summary}".lower()
+    score = int(cfg.get("source_weights", {}).get(item.source, 1))
+    score += 2 if item.category in {"政策监管", "行业动态"} else 1
+    score += 2 if any(word.lower() in text for word in cfg.get("high_impact_keywords", [])) else 0
+    score -= 3 if any(word.lower() in text for word in cfg.get("low_signal_keywords", [])) else 0
+    return score
 
 
 def db() -> sqlite3.Connection:
@@ -192,7 +202,9 @@ def run(dry_run: bool = False) -> None:
     items = unseen(collect(cfg))
     for item in items:
         item.category = classify(item, cfg)
+        item.importance = importance_score(item, cfg)
     items = [x for x in items if x.category not in {"其他", "排除"}]
+    items = [x for x in items if x.importance >= cfg.get("min_importance_score", 4)]
     items = sorted(items, key=lambda x: x.published, reverse=True)[:cfg["max_items"]]
     if not items:
         print("没有发现新的行业动态。")
