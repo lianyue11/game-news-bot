@@ -44,7 +44,6 @@ jobs:
           LLM_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           LLM_BASE_URL: https://generativelanguage.googleapis.com/v1beta/openai
           LLM_MODEL: gemini-2.5-flash
-          WECOM_WEBHOOK: ${{ secrets.WECOM_WEBHOOK }}
           FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
           FEISHU_SECRET: ${{ secrets.FEISHU_SECRET }}
         run: python -m gameintel run
