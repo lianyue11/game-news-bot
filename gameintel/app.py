@@ -129,16 +129,24 @@ def summarize(items: list[Item]) -> None:
     prompt = ("你是全球游戏行业情报编辑。逐条用简体中文写不超过80字的客观摘要，不补充原文没有的信息。"
               "只返回JSON数组，格式为[{\"id\":0,\"summary\":\"...\"}]。材料：" +
               json.dumps(payload_items, ensure_ascii=False))
-    with httpx.Client(timeout=60) as client:
-        res = client.post(f"{base}/chat/completions", headers={"Authorization": f"Bearer {api_key}"},
-                          json={"model": os.getenv("LLM_MODEL", "gpt-4.1-mini"),
-                                "messages": [{"role": "user", "content": prompt}], "temperature": 0.2})
-        res.raise_for_status()
-    content = res.json()["choices"][0]["message"]["content"]
-    content = re.sub(r"^```(?:json)?|```$", "", content.strip(), flags=re.MULTILINE).strip()
-    mapped = {int(x["id"]): x["summary"] for x in json.loads(content)}
-    for i, item in enumerate(items):
-        item.zh_summary = mapped.get(i, (item.summary or item.title)[:180])
+    try:
+        with httpx.Client(timeout=60) as client:
+            res = client.post(f"{base}/chat/completions", headers={"Authorization": f"Bearer {api_key}"},
+                              json={"model": os.getenv("LLM_MODEL", "gpt-4.1-mini"),
+                                    "messages": [{"role": "user", "content": prompt}], "temperature": 0.2})
+            res.raise_for_status()
+        content = res.json()["choices"][0]["message"]["content"]
+        content = re.sub(r"^```(?:json)?|```$", "", content.strip(), flags=re.MULTILINE).strip()
+        mapped = {int(x["id"]): x["summary"] for x in json.loads(content)}
+        for i, item in enumerate(items):
+            item.zh_summary = mapped.get(i, (item.summary or item.title)[:180])
+    except (httpx.HTTPError, KeyError, ValueError, TypeError) as exc:
+        detail = ""
+        if isinstance(exc, httpx.HTTPStatusError):
+            detail = clean_text(exc.response.text)[:500]
+        print(f"AI 摘要暂不可用，改用原文摘要：{exc} {detail}")
+        for item in items:
+            item.zh_summary = (item.summary or item.title)[:180]
 
 
 def render(items: list[Item], title: str) -> str:
