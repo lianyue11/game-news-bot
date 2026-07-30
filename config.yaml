@@ -3,7 +3,17 @@ schedule: "0 9 * * *"
 lookback_hours: 36
 max_items: 20
 title: 全球游戏行业早报
-exclude_keywords: [deal, coupon, save $, monitor, television, movie, film, actor, actress, 促销, 优惠, 电视, 电影]
+min_importance_score: 4
+exclude_keywords: [deal, coupon, save $, monitor, television, smartphone, google pixel, movie, film, actor, actress, book, paperback, novel, litrpg, author, 促销, 优惠, 电视, 手机, 电影, 图书, 小说, 平装版, 作者]
+high_impact_keywords: [officially announced, release date, launches, acquisition, merger, funding, layoffs, shutdown, championship, world cup, regulation, government, 正式公布, 发售日期, 上线, 收购, 融资, 裁员, 停服, 世界杯, 政策, 监管]
+low_signal_keywords: [opinion, rumor, reportedly, fans react, explains why, guide, review, best games, wishlist, 观点, 传闻, 玩家热议, 攻略, 评测, 推荐]
+
+source_weights:
+  GamesIndustry.biz: 3
+  Game Developer: 3
+  Esports Insider: 2
+  IGN: 1
+  PC Gamer: 1
 
 categories:
   新游发布: [launch, release, announced, reveal, 新游, 上线, 发售, 公测]
