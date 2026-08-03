@@ -204,8 +204,32 @@ def run(dry_run: bool = False) -> None:
         item.category = classify(item, cfg)
         item.importance = importance_score(item, cfg)
     items = [x for x in items if x.category not in {"其他", "排除"}]
-    items = [x for x in items if x.importance >= cfg.get("min_importance_score", 4)]
-    items = sorted(items, key=lambda x: x.published, reverse=True)[:cfg["max_items"]]
+
+    # 先选严格达到门槛的内容；数量不足时，只从可信度较高的来源补足。
+    # 这样可以增加国内消息覆盖，又不会用传闻、攻略或普通评论文章凑数。
+    threshold = cfg.get("min_importance_score", 4)
+    min_items = cfg.get("min_items", 5)
+    source_weights = cfg.get("source_weights", {})
+    primary = [x for x in items if x.importance >= threshold]
+    fallback = [
+        x for x in items
+        if x.importance == threshold - 1
+        and source_weights.get(x.source, 1) >= 3
+        and x not in primary
+    ]
+    selected = primary
+    if len(selected) < min_items:
+        selected += fallback[:max(0, min_items - len(selected))]
+
+    domestic_sources = {
+        "腾讯游戏官方", "网易游戏官方", "米哈游官方", "鹰角网络官方",
+        "叠纸游戏官方", "国家新闻出版署", "游戏葡萄", "中国音数协游戏工委",
+    }
+    items = sorted(
+        selected,
+        key=lambda x: (x.importance, x.source in domestic_sources, x.published),
+        reverse=True,
+    )[:cfg["max_items"]]
     if not items:
         print("没有发现新的行业动态。")
         return
