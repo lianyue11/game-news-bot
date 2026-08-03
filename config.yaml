@@ -1,6 +1,7 @@
 timezone: Asia/Shanghai
 schedule: "0 9 * * *"
-lookback_hours: 36
+lookback_hours: 48
+min_items: 5
 max_items: 20
 title: 全球游戏行业早报
 min_importance_score: 4
@@ -9,6 +10,13 @@ high_impact_keywords: [officially announced, release date, launches, acquisition
 low_signal_keywords: [opinion, rumor, reportedly, fans react, explains why, guide, review, best games, wishlist, 观点, 传闻, 玩家热议, 攻略, 评测, 推荐]
 
 source_weights:
+  腾讯游戏官方: 3
+  网易游戏官方: 3
+  米哈游官方: 3
+  鹰角网络官方: 3
+  叠纸游戏官方: 3
+  国家新闻出版署: 4
+  游戏葡萄: 3
   GamesIndustry.biz: 3
   Game Developer: 3
   Esports Insider: 2
@@ -24,6 +32,21 @@ categories:
   行业动态: [acquisition, merger, funding, investment, layoffs, studio closure, shutdown, publisher, 收购, 融资, 投资, 裁员, 工作室关闭, 停服]
 
 feeds:
+  # 国内公司官网与监管信息。通过 Google News 的站内索引生成 RSS，文章链接仍指向原官网。
+  - name: 腾讯游戏官方
+    url: https://news.google.com/rss/search?q=site%3Agame.qq.com%20%E6%B8%B8%E6%88%8F%20when%3A2d&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans
+  - name: 网易游戏官方
+    url: https://news.google.com/rss/search?q=site%3Agame.163.com%20%E6%B8%B8%E6%88%8F%20when%3A2d&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans
+  - name: 米哈游官方
+    url: https://news.google.com/rss/search?q=site%3Amihoyo.com%20%E6%B8%B8%E6%88%8F%20when%3A2d&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans
+  - name: 鹰角网络官方
+    url: https://news.google.com/rss/search?q=site%3Ahypergryph.com%20%E6%B8%B8%E6%88%8F%20when%3A2d&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans
+  - name: 叠纸游戏官方
+    url: https://news.google.com/rss/search?q=site%3Apapegames.com%20%E6%B8%B8%E6%88%8F%20when%3A2d&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans
+  - name: 国家新闻出版署
+    url: https://news.google.com/rss/search?q=site%3Anppa.gov.cn%20%E6%B8%B8%E6%88%8F%20when%3A7d&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans
+  - name: 游戏葡萄
+    url: https://youxiputao.com/feed
   - name: GamesIndustry.biz
     url: https://www.gamesindustry.biz/feed
   - name: Game Developer
