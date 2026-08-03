@@ -89,7 +89,11 @@ def classify(item: Item, cfg: dict) -> str:
     scores = {cat: sum(1 for word in words if hit(word))
               for cat, words in cfg["categories"].items()}
     best = max(scores, key=scores.get)
-    return best if scores[best] else "其他"
+    if scores[best]:
+        return best
+    if item.source in cfg.get("trusted_domestic_sources", []):
+        return "行业动态"
+    return "其他"
 
 
 def importance_score(item: Item, cfg: dict) -> int:
@@ -225,11 +229,21 @@ def run(dry_run: bool = False) -> None:
         "腾讯游戏官方", "网易游戏官方", "米哈游官方", "鹰角网络官方",
         "叠纸游戏官方", "国家新闻出版署", "游戏葡萄", "中国音数协游戏工委",
     }
-    items = sorted(
+    ranked = sorted(
         selected,
         key=lambda x: (x.importance, x.source in domestic_sources, x.published),
         reverse=True,
-    )[:cfg["max_items"]]
+    )
+    items = []
+    source_counts: dict[str, int] = {}
+    per_source = cfg.get("max_items_per_source", 3)
+    for item in ranked:
+        if source_counts.get(item.source, 0) >= per_source:
+            continue
+        items.append(item)
+        source_counts[item.source] = source_counts.get(item.source, 0) + 1
+        if len(items) >= cfg["max_items"]:
+            break
     if not items:
         print("没有发现新的行业动态。")
         return
